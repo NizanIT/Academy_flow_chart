@@ -173,6 +173,7 @@
                 <div class="flex items-center gap-2"><div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-emerald-500"></div>Admissions</div>
                 <div class="flex items-center gap-2"><div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-amber-500"></div>Student</div>
                 <div class="flex items-center gap-2"><div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-rose-500"></div>Contractor</div>
+                <div class="flex items-center gap-2"><div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-cyan-500"></div>Instructor</div>
             </div>
         </header>
 
@@ -187,6 +188,7 @@
                     classDef aggregator fill:#020617,stroke:#38bdf8,stroke-width:3px,color:#38bdf8,rx:30,font-weight:bold;
                     
                     classDef admin fill:#27272a,stroke:#a1a1aa,stroke-width:2px,color:#fff,rx:8;
+                    classDef instructor fill:#164e63,stroke:#06b6d4,stroke-width:2px,color:#fff,rx:8;
                     
                     classDef admission fill:#022c22,stroke:#059669,stroke-width:2px,color:#fff,rx:8;
                     classDef entry fill:#451a03,stroke:#d97706,stroke-width:2px,color:#fff,rx:8;
@@ -322,6 +324,23 @@
                     
                     %% Connect Phase 4 to Phase 5
                     Terminate --> CAccount
+                    
+                    %% =========================================
+                    %% PHASE 6: INSTRUCTOR TIER
+                    %% =========================================
+                    subgraph PHASE6 ["PHASE 6: INSTRUCTOR FLOW"]
+                        direction LR
+                        InstReq["Identify Teaching Needs"]:::instructor
+                        InstHire["Instructor Recruitment<br/>and Verification"]:::instructor
+                        InstAssign["Course and Webinar<br/>Assignment"]:::instructor
+                        InstTeach["Provide Mentorship<br/>and Conduct Evaluations"]:::instructor
+                        InstEval["Instructor Performance<br/>Review"]:::instructor
+                        
+                        InstReq --> InstHire
+                        InstHire --> InstAssign
+                        InstAssign --> InstTeach
+                        InstTeach --> InstEval
+                    end
 
                     %% =========================================
                     %% ADMIN GOVERNANCE (Parallel)
@@ -338,8 +357,10 @@
                         Adm3 -.-> Adm4
                     end
                     
-                    %% Connect Admin logic parallel to the flow
+                    %% Connect Admin & Instructor logic parallel to the flow
                     Demand -.-> Adm1
+                    Adm1 -.-> InstReq
+                    InstTeach -.-> Resources
             </div>
         </div>
 
