@@ -101,43 +101,40 @@
             bottom: 20px;
             right: 20px;
             display: flex;
+            flex-direction: column-reverse; /* Zoom In at top, Zoom Out at bottom for mobile */
             gap: 8px;
-            background: rgba(30, 41, 59, 0.9);
+            background: rgba(30, 41, 59, 0.75); /* Slightly transparent on mobile */
             padding: 8px;
             border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(8px);
             z-index: 100;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
         @media (min-width: 768px) {
             .controls {
+                flex-direction: row; /* Horizontal row for desktop */
                 bottom: 30px;
                 right: 30px;
                 gap: 10px;
                 padding: 10px;
+                background: rgba(30, 41, 59, 0.9);
             }
         }
 
         .btn {
-            background: #334155;
+            background: rgba(51, 65, 85, 0.9);
             color: #f8fafc;
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 8px;
-            width: 44px;
-            height: 44px; /* Larger touch target for mobile */
+            width: 40px;
+            height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: all 0.2s;
-        }
-
-        @media (min-width: 768px) {
-            .btn {
-                width: 40px;
-                height: 40px;
-            }
         }
 
         .btn:hover, .btn:active {
@@ -536,9 +533,11 @@
                 const baseWidth = rect.width / scale || 1000; 
                 const baseHeight = rect.height / scale || 1000;
                 
-                // Allow slightly tighter fit on mobile screens (90% width vs desktop 95%)
                 const isMobile = containerRect.width < 768;
-                const widthPadding = isMobile ? 0.9 : 0.95;
+                
+                // Allow slightly tighter fit on mobile screens (90% width vs desktop 95%)
+                // We use 0.85 on mobile width to leave room for the vertical side-controls
+                const widthPadding = isMobile ? 0.85 : 0.95;
                 const heightPadding = isMobile ? 0.8 : 0.95;
 
                 const scaleX = (containerRect.width * widthPadding) / baseWidth;
@@ -550,9 +549,9 @@
                 pointX = (containerRect.width - (baseWidth * scale)) / 2;
                 pointY = (containerRect.height - (baseHeight * scale)) / 2; 
 
-                // Offset Y slightly upward on mobile so it clears the bottom buttons
+                // Offset slightly on mobile so it clears the right-side vertical buttons
                 if (isMobile) {
-                    pointY -= 30;
+                    pointX -= 25; // Shift diagram slightly to the left
                 }
 
                 updateTransform();
