@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Makeup Academy Master Flow</title>
     
     <!-- Load Tailwind CSS -->
@@ -45,6 +45,7 @@
             margin: 0;
             padding: 0;
             overflow: hidden; /* Prevent native scroll, use canvas pan */
+            touch-action: none; /* Crucial for custom touch handling */
         }
 
         #app {
@@ -82,8 +83,9 @@
         #mermaid-container {
             transform-origin: 0 0;
             display: inline-block;
-            padding: 20px; /* Reduced padding to fit more content */
-            transition: transform 0.1s ease-out; /* Smooth zooming */
+            padding: 20px;
+            transition: transform 0.05s linear; /* Fast transition for smooth touch panning */
+            will-change: transform;
         }
 
         /* Override Mermaid SVG constraints */
@@ -96,16 +98,25 @@
         /* Controls Panel */
         .controls {
             position: absolute;
-            bottom: 30px;
-            right: 30px;
+            bottom: 20px;
+            right: 20px;
             display: flex;
-            gap: 10px;
+            gap: 8px;
             background: rgba(30, 41, 59, 0.9);
-            padding: 10px;
+            padding: 8px;
             border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(8px);
             z-index: 100;
+        }
+
+        @media (min-width: 768px) {
+            .controls {
+                bottom: 30px;
+                right: 30px;
+                gap: 10px;
+                padding: 10px;
+            }
         }
 
         .btn {
@@ -113,8 +124,8 @@
             color: #f8fafc;
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 8px;
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px; /* Larger touch target for mobile */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -122,7 +133,14 @@
             transition: all 0.2s;
         }
 
-        .btn:hover {
+        @media (min-width: 768px) {
+            .btn {
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+        .btn:hover, .btn:active {
             background: #475569;
             transform: translateY(-2px);
         }
@@ -140,22 +158,24 @@
 <body>
 
     <div id="app">
-        <!-- Top Navigation -->
-        <header class="p-4 px-6 flex justify-between items-center relative">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600 to-blue-500 flex items-center justify-center shadow-[0_0_15px_rgba(139,92,246,0.3)]">
-                    <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+        <!-- Top Navigation (Responsive) -->
+        <header class="p-3 md:p-4 px-4 md:px-6 flex flex-col md:flex-row justify-between items-start md:items-center relative gap-3 md:gap-0">
+            <div class="flex items-center gap-3 md:gap-4">
+                <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-purple-600 to-blue-500 flex items-center justify-center shadow-[0_0_15px_rgba(139,92,246,0.3)] shrink-0">
+                    <svg class="w-6 h-6 md:w-7 md:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold tracking-tight text-white">Makeup Academy</h1>
-                    <p class="text-xs font-semibold text-purple-400 uppercase tracking-widest mt-0.5">Organized Operational Flow</p>
+                    <h1 class="text-xl md:text-2xl font-bold tracking-tight text-white leading-tight">Makeup Academy</h1>
+                    <p class="text-[10px] md:text-xs font-semibold text-purple-400 uppercase tracking-widest mt-0.5">Organized Operational Flow</p>
                 </div>
             </div>
-            <div class="flex gap-6 text-sm font-medium">
-                <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-blue-500"></div>Marketing</div>
-                <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-emerald-500"></div>Admissions</div>
-                <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-amber-500"></div>Student</div>
-                <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-rose-500"></div>Contractor</div>
+            
+            <!-- Wrapping legend for mobile -->
+            <div class="flex flex-wrap gap-x-4 gap-y-2 text-xs md:text-sm font-medium w-full md:w-auto">
+                <div class="flex items-center gap-2"><div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-blue-500"></div>Marketing</div>
+                <div class="flex items-center gap-2"><div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-emerald-500"></div>Admissions</div>
+                <div class="flex items-center gap-2"><div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-amber-500"></div>Student</div>
+                <div class="flex items-center gap-2"><div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-rose-500"></div>Contractor</div>
             </div>
         </header>
 
@@ -329,13 +349,13 @@
         <!-- Zoom & Pan Controls -->
         <div class="controls shadow-lg">
             <button class="btn" id="zoom-out" title="Zoom Out">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                <svg class="w-6 h-6 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
             </button>
             <button class="btn" id="reset" title="Reset View">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+                <svg class="w-6 h-6 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
             </button>
             <button class="btn" id="zoom-in" title="Zoom In">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                <svg class="w-6 h-6 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
             </button>
         </div>
     </div>
@@ -352,22 +372,33 @@
             let isDragging = false;
             
             // Re-engineered Bounds
-            const MIN_SCALE = 0.02; // Can zoom way out
-            const MAX_SCALE = 50;   // Increased drastically to allow deep zooming in
+            const MIN_SCALE = 0.02; 
+            const MAX_SCALE = 50;   
 
             function updateTransform() {
                 diagram.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
             }
 
-            // --- Mouse Drag to Pan ---
-            container.addEventListener('mousedown', (e) => {
-                if(e.target.closest('.controls')) return; // Ignore clicks on the buttons
+            // --- Function to handle zoom math perfectly ---
+            function applyZoom(delta, mouseX, mouseY) {
+                const newScale = Math.min(Math.max(scale * delta, MIN_SCALE), MAX_SCALE);
                 
+                // Keep the point under the mouse fixed during zoom
+                pointX = mouseX - (mouseX - pointX) * (newScale / scale);
+                pointY = mouseY - (mouseY - pointY) * (newScale / scale);
+                
+                scale = newScale;
+                updateTransform();
+            }
+
+            // ==========================================
+            // DESKTOP MOUSE EVENTS (Pan & Scroll Wheel)
+            // ==========================================
+            
+            container.addEventListener('mousedown', (e) => {
+                if(e.target.closest('.controls')) return; 
                 isDragging = true;
-                start = { 
-                    x: e.clientX - pointX, 
-                    y: e.clientY - pointY 
-                };
+                start = { x: e.clientX - pointX, y: e.clientY - pointY };
                 e.preventDefault(); 
             });
 
@@ -382,46 +413,114 @@
                 updateTransform();
             });
 
-            // --- Function to handle zoom math perfectly ---
-            function applyZoom(delta, mouseX, mouseY) {
-                const newScale = Math.min(Math.max(scale * delta, MIN_SCALE), MAX_SCALE);
-                
-                // Keep the point under the mouse fixed during zoom
-                pointX = mouseX - (mouseX - pointX) * (newScale / scale);
-                pointY = mouseY - (mouseY - pointY) * (newScale / scale);
-                
-                scale = newScale;
-                updateTransform();
-            }
-
-            // --- Mouse Wheel to Zoom ---
             container.addEventListener('wheel', (e) => {
-                e.preventDefault();
-                
+                e.preventDefault(); // Prevent native scroll
                 const rect = container.getBoundingClientRect();
                 const mouseX = e.clientX - rect.left;
                 const mouseY = e.clientY - rect.top;
-
-                const delta = e.deltaY > 0 ? 0.85 : 1.15; // Smooth scroll multiplier
+                const delta = e.deltaY > 0 ? 0.85 : 1.15; 
                 applyZoom(delta, mouseX, mouseY);
             }, { passive: false });
 
-            // --- Button Controls ---
+
+            // ==========================================
+            // MOBILE TOUCH EVENTS (Swipe & Pinch-to-Zoom)
+            // ==========================================
+            
+            let initialPinchDistance = null;
+
+            container.addEventListener('touchstart', (e) => {
+                if(e.target.closest('.controls')) return;
+                e.preventDefault(); // Prevent browser refresh/scroll
+
+                if (e.touches.length === 1) {
+                    // Single finger: Start Panning
+                    isDragging = true;
+                    start = { x: e.touches[0].clientX - pointX, y: e.touches[0].clientY - pointY };
+                } else if (e.touches.length === 2) {
+                    // Two fingers: Start Pinch-to-Zoom
+                    isDragging = false;
+                    initialPinchDistance = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                }
+            }, { passive: false });
+
+            container.addEventListener('touchmove', (e) => {
+                e.preventDefault(); 
+
+                if (isDragging && e.touches.length === 1) {
+                    // Single finger Pan
+                    pointX = e.touches[0].clientX - start.x;
+                    pointY = e.touches[0].clientY - start.y;
+                    updateTransform();
+                } else if (e.touches.length === 2 && initialPinchDistance) {
+                    // Two finger Pinch
+                    const currentDistance = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                    
+                    // Calculate relative scale factor
+                    const pinchScale = currentDistance / initialPinchDistance;
+                    
+                    // Find the midpoint between the two fingers to zoom into
+                    const rect = container.getBoundingClientRect();
+                    const midX = ((e.touches[0].clientX + e.touches[1].clientX) / 2) - rect.left;
+                    const midY = ((e.touches[0].clientY + e.touches[1].clientY) / 2) - rect.top;
+
+                    const newScale = Math.min(Math.max(scale * pinchScale, MIN_SCALE), MAX_SCALE);
+                    
+                    pointX = midX - (midX - pointX) * (newScale / scale);
+                    pointY = midY - (midY - pointY) * (newScale / scale);
+                    
+                    scale = newScale;
+                    updateTransform();
+                    
+                    // Reset initial distance for continuous smooth zooming
+                    initialPinchDistance = currentDistance;
+                }
+            }, { passive: false });
+
+            container.addEventListener('touchend', (e) => {
+                if (e.touches.length < 2) {
+                    initialPinchDistance = null;
+                }
+                if (e.touches.length === 0) {
+                    isDragging = false;
+                }
+                if (e.touches.length === 1) {
+                    // Prevent jumping when releasing one finger during a pinch
+                    start = { x: e.touches[0].clientX - pointX, y: e.touches[0].clientY - pointY };
+                    isDragging = true;
+                }
+            });
+
+
+            // ==========================================
+            // BUTTON CONTROLS
+            // ==========================================
+
             document.getElementById('zoom-in').addEventListener('click', () => {
                 const rect = container.getBoundingClientRect();
-                applyZoom(1.25, rect.width / 2, rect.height / 2); // Zoom into center
+                applyZoom(1.3, rect.width / 2, rect.height / 2); 
             });
 
             document.getElementById('zoom-out').addEventListener('click', () => {
                 const rect = container.getBoundingClientRect();
-                applyZoom(0.8, rect.width / 2, rect.height / 2); // Zoom out from center
+                applyZoom(0.7, rect.width / 2, rect.height / 2); 
             });
 
             document.getElementById('reset').addEventListener('click', () => {
                 centerDiagram();
             });
 
-            // --- Auto-Fit & Center ---
+
+            // ==========================================
+            // AUTO-FIT ON LOAD (Responsive logic)
+            // ==========================================
+            
             let retryCount = 0;
             function centerDiagram() {
                 const svg = diagram.querySelector('svg');
@@ -434,26 +533,37 @@
                 const rect = svg.getBoundingClientRect();
                 const containerRect = container.getBoundingClientRect();
                 
-                // Get the true native size of the SVG independent of current scale
                 const baseWidth = rect.width / scale || 1000; 
                 const baseHeight = rect.height / scale || 1000;
                 
-                // Figure out exact scale needed to fit 95% of the screen
-                const scaleX = (containerRect.width * 0.95) / baseWidth;
-                const scaleY = (containerRect.height * 0.95) / baseHeight;
+                // Allow slightly tighter fit on mobile screens (90% width vs desktop 95%)
+                const isMobile = containerRect.width < 768;
+                const widthPadding = isMobile ? 0.9 : 0.95;
+                const heightPadding = isMobile ? 0.8 : 0.95;
+
+                const scaleX = (containerRect.width * widthPadding) / baseWidth;
+                const scaleY = (containerRect.height * heightPadding) / baseHeight;
                 
-                // Use the smaller scale so it fully fits, but enforce absolute limits
                 scale = Math.min(Math.max(Math.min(scaleX, scaleY), MIN_SCALE), 1.5);
                 
                 // Center perfectly
                 pointX = (containerRect.width - (baseWidth * scale)) / 2;
                 pointY = (containerRect.height - (baseHeight * scale)) / 2; 
 
+                // Offset Y slightly upward on mobile so it clears the bottom buttons
+                if (isMobile) {
+                    pointY -= 30;
+                }
+
                 updateTransform();
             }
 
-            // Initialize position once Mermaid draws
+            // Initialize position once Mermaid draws, and on window resize
             setTimeout(centerDiagram, 600);
+            window.addEventListener('resize', () => {
+                // Optional: Recenter immediately on device rotation
+                setTimeout(centerDiagram, 300);
+            });
         });
     </script>
 </body>
