@@ -28,8 +28,8 @@
             },
             flowchart: {
                 curve: 'basis',
-                rankSpacing: 40,  // Reduced for tighter fit
-                nodeSpacing: 30   // Reduced for tighter fit
+                rankSpacing: 40,  
+                nodeSpacing: 30   
             }
         });
     </script>
@@ -44,8 +44,8 @@
             color: #e2e8f0;
             margin: 0;
             padding: 0;
-            overflow: hidden; /* Prevent native scroll, use canvas pan */
-            touch-action: none; /* Crucial for custom touch handling */
+            overflow: hidden; 
+            touch-action: none; 
         }
 
         #app {
@@ -84,7 +84,7 @@
             transform-origin: 0 0;
             display: inline-block;
             padding: 20px;
-            transition: transform 0.05s linear; /* Fast transition for smooth touch panning */
+            transition: transform 0.05s linear; 
             will-change: transform;
         }
 
@@ -101,9 +101,9 @@
             bottom: 20px;
             right: 20px;
             display: flex;
-            flex-direction: column-reverse; /* Zoom In at top, Zoom Out at bottom for mobile */
+            flex-direction: column-reverse; 
             gap: 8px;
-            background: rgba(30, 41, 59, 0.75); /* Slightly transparent on mobile */
+            background: rgba(30, 41, 59, 0.75); 
             padding: 8px;
             border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -114,7 +114,7 @@
 
         @media (min-width: 768px) {
             .controls {
-                flex-direction: row; /* Horizontal row for desktop */
+                flex-direction: row; 
                 bottom: 30px;
                 right: 30px;
                 gap: 10px;
@@ -174,6 +174,7 @@
                 <div class="flex items-center gap-2"><div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-amber-500"></div>Student</div>
                 <div class="flex items-center gap-2"><div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-rose-500"></div>Contractor</div>
                 <div class="flex items-center gap-2"><div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-cyan-500"></div>Instructor</div>
+                <div class="flex items-center gap-2"><div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-pink-600"></div>Offline</div>
             </div>
         </header>
 
@@ -181,7 +182,7 @@
         <div id="canvas-wrapper">
             <div id="mermaid-container" class="mermaid">
                 graph TD
-                    %% Styles
+                    %% Styles definitions
                     classDef extMark fill:#172554,stroke:#3b82f6,stroke-width:2px,color:#fff,rx:8;
                     classDef colMark fill:#064e3b,stroke:#10b981,stroke-width:2px,color:#fff,rx:8;
                     classDef refMark fill:#4c1d95,stroke:#8b5cf6,stroke-width:2px,color:#fff,rx:8;
@@ -189,6 +190,7 @@
                     
                     classDef admin fill:#27272a,stroke:#a1a1aa,stroke-width:2px,color:#fff,rx:8;
                     classDef instructor fill:#164e63,stroke:#06b6d4,stroke-width:2px,color:#fff,rx:8;
+                    classDef offline fill:#831843,stroke:#be185d,stroke-width:2px,color:#fff,rx:8;
                     
                     classDef admission fill:#022c22,stroke:#059669,stroke-width:2px,color:#fff,rx:8;
                     classDef entry fill:#451a03,stroke:#d97706,stroke-width:2px,color:#fff,rx:8;
@@ -269,7 +271,7 @@
                     %% =========================================
                     %% PHASE 4: STUDENT TIER
                     %% =========================================
-                    subgraph PHASE4 ["PHASE 4: STUDENT TIER & LEARNING"]
+                    subgraph PHASE4 ["PHASE 4: STUDENT TIER (ONLINE and OFFLINE)"]
                         direction TB
                         Account{"STUDENT ACCOUNT<br/>Access Activated"}:::student
                         
@@ -291,10 +293,14 @@
                         LiveShoot --> AdvLearn
                         %% ---------------------------------
                         
-                        AdvLearn --> ConExam["Contractor Examination"]:::student
+                        AdvLearn --> InstSelect{"Instructor Selects<br/>for Offline Academy?"}:::decision
+                        InstSelect -->|NO| StandardGrad["🎓 Standard Graduation<br/>(Contractor Path Closed)"]:::student
+                        InstSelect -->|YES| OfflineAcademy["🏢 OFFLINE ACADEMY<br/>In-Person Practical Training"]:::offline
+                        
+                        OfflineAcademy --> ConExam["Contractor Examination"]:::student
                         ConExam --> Pass2{"Pass Contractor Exam?"}:::decision
                         
-                        Pass2 -->|NO Retake| AdvLearn
+                        Pass2 -->|NO Retake| OfflineAcademy
                         Pass2 -->|YES| BGCheck["Background and Portfolio Verification"]:::student
                         BGCheck --> Terminate["🛑 STUDENT STATUS TERMINATES"]:::terminate
                     end
@@ -349,18 +355,24 @@
                         direction TB
                         Adm1["Demand Forecasting"]:::admin
                         Adm2["Manage Marketing Funnels"]:::admin
+                        AdmReport["Analytics Dashboard<br/>Marketing and Sales Reports"]:::admin
                         Adm3["Control Admissions Multiplier"]:::admin
+                        AdmContent["Content Management<br/>Add Modules, Videos, Quizzes"]:::admin
                         Adm4["Contractor Approval and Monitoring"]:::admin
                         
                         Adm1 -.-> Adm2
-                        Adm2 -.-> Adm3
-                        Adm3 -.-> Adm4
+                        Adm2 -.-> AdmReport
+                        AdmReport -.-> Adm3
+                        Adm3 -.-> AdmContent
+                        AdmContent -.-> Adm4
                     end
                     
                     %% Connect Admin & Instructor logic parallel to the flow
                     Demand -.-> Adm1
                     Adm1 -.-> InstReq
                     InstTeach -.-> Resources
+                    InstTeach -.-> InstSelect
+                    AdmContent -.-> Video
             </div>
         </div>
 
@@ -556,8 +568,7 @@
                 
                 const isMobile = containerRect.width < 768;
                 
-                // Allow slightly tighter fit on mobile screens (90% width vs desktop 95%)
-                // We use 0.85 on mobile width to leave room for the vertical side-controls
+                // Allow slightly tighter fit on mobile screens
                 const widthPadding = isMobile ? 0.85 : 0.95;
                 const heightPadding = isMobile ? 0.8 : 0.95;
 
@@ -572,7 +583,7 @@
 
                 // Offset slightly on mobile so it clears the right-side vertical buttons
                 if (isMobile) {
-                    pointX -= 25; // Shift diagram slightly to the left
+                    pointX -= 25; 
                 }
 
                 updateTransform();
@@ -581,7 +592,6 @@
             // Initialize position once Mermaid draws, and on window resize
             setTimeout(centerDiagram, 600);
             window.addEventListener('resize', () => {
-                // Optional: Recenter immediately on device rotation
                 setTimeout(centerDiagram, 300);
             });
         });
